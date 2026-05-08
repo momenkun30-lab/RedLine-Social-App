@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Line | الخط الأحمر</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <canvas id="starsCanvas"></canvas>
+
+    <header>
+        <div class="lang-selector">
+            <select id="languagePicker" onchange="changeLanguage()">
+                <option value="ar">العربية</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="hi">हिन्दी</option>
+                <option value="zh">中文</option>
+                <option value="ja">日本語</option>
+            </select>
+        </div>
+        <div class="logo">
+            <h1 id="brand-logo">RED LINE</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="typing-container">
+            <h2 id="hero-text" class="shiny-text"></h2>
+        </div>
+    </main>
+
+    <footer id="footer-buttons">
+        <button class="btn btn-login" id="loginBtn" onclick="openModal('loginModal')">تسجيل الدخول</button>
+        <button class="btn btn-register" id="regBtn" onclick="openModal('registerModal')">إنشاء حساب</button>
+    </footer>
+
+    <div id="registerModal" class="auth-modal">
+        <div class="modal-content">
+            <h2 class="shiny-text">إنشاء حساب جديد</h2>
+            <div class="input-grid">
+                <input type="text" id="reg-user" placeholder="اسم المستخدم">
+                <input type="text" id="reg-birth" placeholder="مكان الميلاد">
+                <input type="text" id="reg-nat" placeholder="الجنسية">
+                <input type="number" id="reg-age" placeholder="العمر">
+                <input type="date" id="reg-date">
+                <input type="text" id="reg-loc" placeholder="الإقامة الحالية">
+            </div>
+            <button class="btn-action" onclick="showSecurityStep()">متابعة</button>
+            <button class="btn-close" onclick="closeModal('registerModal')">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="securityModal" class="auth-modal">
+        <div class="modal-content">
+            <h2 class="shiny-text">حماية الحساب</h2>
+            <p>اختر سؤال أمان لاستعادة كلمة السر:</p>
+            <select id="s-question">
+                <option value="مكان الإقامة">مكان الإقامة</option>
+                <option value="اسم صديق">اسم صديق</option>
+                <option value="مكان تحب التواجد فيه">مكان تحب التواجد فيه</option>
+                <option value="اسم شخص تحبه">اسم شخص تحبه</option>
+            </select>
+            <input type="text" id="s-answer" placeholder="إجابتك">
+            <input type="password" id="reg-pass" placeholder="كلمة السر الخاصة بك">
+            <button class="btn-action" onclick="finishReg()">تأكيد وإنشاء الحساب</button>
+        </div>
+    </div>
+
+    <div id="loginModal" class="auth-modal">
+        <div class="modal-content">
+            <h2 class="shiny-text">تسجيل الدخول</h2>
+            <input type="text" id="login-user" placeholder="اسم المستخدم">
+            <input type="password" id="login-pass" placeholder="كلمة السر">
+            <button class="btn-action" onclick="attemptLogin()">دخول</button>
+            <p class="forgot-txt" onclick="openForgot()">هل نسيت كلمة السر؟</p>
+            <button class="btn-close" onclick="closeModal('loginModal')">إغلاق</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
