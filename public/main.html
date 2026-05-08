@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Line | المنطقة المركزية</title>
+    <link rel="stylesheet" href="main-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="nav-logo">RL</div>
+            <div class="nav-menu">
+                <div class="nav-item active" title="الرئيسية">🏠</div>
+                <div class="nav-item" title="اكتشف الفيديوهات">🎬</div>
+                <div class="nav-item" title="الرسائل">💬</div>
+                <div class="nav-item" title="الملف الشخصي">👤</div>
+            </div>
+            <div class="nav-footer">
+                <button class="logout-btn" onclick="logout()">🚪</button>
+            </div>
+        </nav>
+
+        <section class="video-feed" id="videoFeed">
+            <div class="video-card">
+                <video src="https://www.w3schools.com/html/mov_bbb.mp4" loop class="feed-video"></video>
+                <div class="video-overlay">
+                    <div class="user-info">
+                        <h3>@RedLine_Hero</h3>
+                        <p>مرحباً بكم في عصر "الخط الأحمر" الجديد.. #RedLine #History</p>
+                    </div>
+                    <div class="side-actions">
+                        <div class="action-item">❤️ <span>1.2k</span></div>
+                        <div class="action-item">💬 <span>85</span></div>
+                        <div class="action-item">🔄 <span>30</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-card">
+                <video src="https://www.w3schools.com/html/movie.mp4" loop class="feed-video"></video>
+                <div class="video-overlay">
+                    <div class="user-info">
+                        <h3>@Creator_X</h3>
+                        <p>اصنع لنفسك تاريخاً تذكر به! 🌟</p>
+                    </div>
+                    <div class="side-actions">
+                        <div class="action-item">❤️ <span>900</span></div>
+                        <div class="action-item">💬 <span>12</span></div>
+                        <div class="action-item">🔄 <span>5</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="chat-sidebar">
+            <div class="chat-header">
+                <h3>المحادثات الخاصة</h3>
+            </div>
+            <div class="chat-users-list">
+                <div class="user-chat active">
+                    <div class="avatar"></div>
+                    <div class="chat-details">
+                        <h4>نظام Red Line</h4>
+                        <p>أهلاً بك في منصتك الجديدة...</p>
+                    </div>
+                </div>
+                </div>
+            <div class="chat-input-container">
+                <input type="text" placeholder="اكتب رسالتك هنا..." id="msgInput">
+                <button onclick="sendMessage()">➤</button>
+            </div>
+        </aside>
+    </div>
+
+    <script src="main-script.js"></script>
+</body>
+</html>
