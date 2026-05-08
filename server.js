@@ -8,51 +8,50 @@ const app = express();
 // --- إعدادات المعالجة والجلسات ---
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// إعداد الجلسة لتذكر المستخدم (Session)
+// تعديل: جعل السيرفر يقرأ الملفات من المجلد الرئيسي مباشرة
+app.use(express.static(__dirname));
+
+// إعداد الجلسة لتذكر المستخدم
 app.use(session({
-    secret: 'RedLine_Secret_2026_Key', // مفتاح سري لتأمين الجلسات
+    secret: 'RedLine_Secret_2026_Key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // اجعلها true فقط إذا كنت تستخدم https
+    cookie: { secure: false } 
 }));
 
-// --- قاعدة بيانات مؤقتة (سيتم ربطها بـ MongoDB لاحقاً) ---
+// --- قاعدة بيانات مؤقتة ---
 let usersDB = [];
 
-// --- مسارات التوجيه (Routes) ---
+// --- مسارات التوجيه (تعديل المسارات لحذف مجلد public) ---
 
-// 1. الشاشة الرأسية (نقطة البداية)
+// 1. عرض الشاشة الرأسية
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. شاشة المحتوى الرئيسي (الفيديوهات والرسائل)
+// 2. عرض شاشة المحتوى الرئيسي (بعد الدخول)
 app.get('/home', (req, res) => {
-    // التحقق من أن المستخدم قام بتسجيل الدخول فعلياً
     if (req.session.isLoggedIn) {
-        res.sendFile(path.join(__dirname, 'public', 'main.html'));
+        res.sendFile(path.join(__dirname, 'main.html'));
     } else {
-        res.redirect('/'); // إذا حاول الدخول مباشرة دون تسجيل يتم طرده للشاشة الرأسية
+        res.redirect('/'); 
     }
 });
 
-// --- العمليات المنطقية (API Logic) ---
+// --- العمليات البرمجية (APIs) ---
 
-// 3. عملية إنشاء حساب جديد
+// إنشاء حساب جديد
 app.post('/register', (req, res) => {
     const { 
         username, birthplace, nationality, age, 
         residence, securityQuestion, securityAnswer, password 
     } = req.body;
 
-    // التحقق من تكرار الاسم
     if (usersDB.find(u => u.username === username)) {
         return res.status(400).json({ message: "اسم المستخدم هذا مسجل بالفعل!" });
     }
 
-    // إضافة المستخدم الجديد مع بياناته وسؤال الأمان
     const newUser = {
         username,
         profile: { birthplace, nationality, age, residence },
@@ -61,17 +60,16 @@ app.post('/register', (req, res) => {
     };
 
     usersDB.push(newUser);
-    console.log(`✅ حساب جديد تم إنشاؤه: ${username}`);
     res.status(200).json({ message: "تم إنشاء الحساب بنجاح!" });
 });
 
-// 4. عملية تسجيل الدخول
+// تسجيل الدخول
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     const user = usersDB.find(u => u.username === username && u.password === password);
 
     if (user) {
-        req.session.isLoggedIn = true; // حفظ حالة الدخول في الجلسة
+        req.session.isLoggedIn = true;
         req.session.user = user.username;
         res.json({ success: true, redirect: '/home' });
     } else {
@@ -79,11 +77,10 @@ app.post('/login', (req, res) => {
     }
 });
 
-// 5. عملية استعادة كلمة السر (سؤال الأمان)
+// استعادة كلمة السر
 app.post('/forgot-password', (req, res) => {
     const { username } = req.body;
     const user = usersDB.find(u => u.username === username);
-
     if (user) {
         res.json({ question: user.security.question });
     } else {
@@ -91,20 +88,7 @@ app.post('/forgot-password', (req, res) => {
     }
 });
 
-// 6. التحقق من الإجابة وتغيير كلمة السر
-app.post('/reset-password', (req, res) => {
-    const { username, answer, newPassword } = req.body;
-    const user = usersDB.find(u => u.username === username);
-
-    if (user && user.security.answer === answer) {
-        user.password = newPassword;
-        res.json({ message: "تم تحديث كلمة السر بنجاح، يمكنك الدخول الآن." });
-    } else {
-        res.status(400).json({ message: "الإجابة على سؤال الأمان خاطئة!" });
-    }
-});
-
-// 7. تسجيل الخروج
+// تسجيل الخروج
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
@@ -113,5 +97,5 @@ app.get('/logout', (req, res) => {
 // --- تشغيل السيرفر ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Red Line Server is running on: http://localhost:${PORT}`);
+    console.log(`🚀 Red Line Server is running on port ${PORT}`);
 });
