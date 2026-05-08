@@ -13,18 +13,13 @@
 
     <header>
         <div class="lang-selector">
-            <select id="languagePicker" onchange="changeLanguage()">
+            <select id="languagePicker">
                 <option value="ar">العربية</option>
                 <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="hi">हिन्दी</option>
-                <option value="zh">中文</option>
-                <option value="ja">日本語</option>
             </select>
         </div>
         <div class="logo">
-            <h1 id="brand-logo">RED LINE</h1>
+            <h1>RED LINE</h1>
         </div>
     </header>
 
@@ -34,24 +29,25 @@
         </div>
     </main>
 
-    <footer id="footer-buttons">
-        <button class="btn btn-login" id="loginBtn" onclick="openModal('loginModal')">تسجيل الدخول</button>
-        <button class="btn btn-register" id="regBtn" onclick="openModal('registerModal')">إنشاء حساب</button>
+    <footer id="footer-buttons" style="display: none;">
+        <button class="btn btn-login" onclick="openModal('loginModal')">تسجيل الدخول</button>
+        <button class="btn btn-register" onclick="openModal('registerModal')">إنشاء حساب</button>
     </footer>
 
     <div id="registerModal" class="auth-modal">
         <div class="modal-content">
-            <h2 class="shiny-text">إنشاء حساب جديد</h2>
+            <h2 class="shiny-text">انضم للخط الأحمر</h2>
             <div class="input-grid">
                 <input type="text" id="reg-user" placeholder="اسم المستخدم">
                 <input type="text" id="reg-birth" placeholder="مكان الميلاد">
                 <input type="text" id="reg-nat" placeholder="الجنسية">
                 <input type="number" id="reg-age" placeholder="العمر">
-                <input type="date" id="reg-date">
                 <input type="text" id="reg-loc" placeholder="الإقامة الحالية">
             </div>
-            <button class="btn-action" onclick="showSecurityStep()">متابعة</button>
-            <button class="btn-close" onclick="closeModal('registerModal')">إغلاق</button>
+            <div class="modal-btns">
+                <button class="btn-action" onclick="showSecurityStep()">متابعة</button>
+                <button class="btn-close" onclick="closeModal('registerModal')">إغلاق</button>
+            </div>
         </div>
     </div>
 
@@ -60,14 +56,14 @@
             <h2 class="shiny-text">حماية الحساب</h2>
             <p>اختر سؤال أمان لاستعادة كلمة السر:</p>
             <select id="s-question">
-                <option value="مكان الإقامة">مكان الإقامة</option>
-                <option value="اسم صديق">اسم صديق</option>
-                <option value="مكان تحب التواجد فيه">مكان تحب التواجد فيه</option>
-                <option value="اسم شخص تحبه">اسم شخص تحبه</option>
+                <option value="مكان الإقامة">أين كان أول مكان سكنت فيه؟</option>
+                <option value="اسم صديق">ما هو اسم صديق طفولتك؟</option>
+                <option value="حيوانك الأليف">ما هو اسم أول حيوان أليف لك؟</option>
             </select>
-            <input type="text" id="s-answer" placeholder="إجابتك">
-            <input type="password" id="reg-pass" placeholder="كلمة السر الخاصة بك">
+            <input type="text" id="s-answer" placeholder="إجابتك السرية">
+            <input type="password" id="reg-pass" placeholder="اختر كلمة سر قوية">
             <button class="btn-action" onclick="finishReg()">تأكيد وإنشاء الحساب</button>
+            <button class="btn-close" onclick="closeModal('securityModal')">إلغاء</button>
         </div>
     </div>
 
@@ -77,7 +73,6 @@
             <input type="text" id="login-user" placeholder="اسم المستخدم">
             <input type="password" id="login-pass" placeholder="كلمة السر">
             <button class="btn-action" onclick="attemptLogin()">دخول</button>
-            <p class="forgot-txt" onclick="openForgot()">هل نسيت كلمة السر؟</p>
             <button class="btn-close" onclick="closeModal('loginModal')">إغلاق</button>
         </div>
     </div>
