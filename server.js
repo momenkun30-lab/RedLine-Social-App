@@ -5,104 +5,113 @@ const session = require('express-session');
 
 const app = express();
 
-// --- 1. إعدادات السيرفر الأساسية ---
-app.use(bodyParser.urlencoded({ extended: true }));
+// --- إعدادات المعالجة والجلسات ---
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// إعداد الجلسات (Sessions) لبقاء المستخدم مسجلاً دخوله
+// إعداد الجلسة لتذكر المستخدم (Session)
 app.use(session({
-    secret: 'red-line-secret-key-2026',
+    secret: 'RedLine_Secret_2026_Key', // مفتاح سري لتأمين الجلسات
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { secure: false } // اجعلها true فقط إذا كنت تستخدم https
 }));
 
-// --- 2. قاعدة بيانات تجريبية (سيتم استبدالها بـ MongoDB لاحقاً) ---
-// هنا نقوم بتخزين المستخدمين مؤقتاً في ذاكرة السيرفر
-let users = []; 
+// --- قاعدة بيانات مؤقتة (سيتم ربطها بـ MongoDB لاحقاً) ---
+let usersDB = [];
 
-// --- 3. مسارات التنقل (Routing) ---
+// --- مسارات التوجيه (Routes) ---
 
-// عرض الشاشة الرأسية السينمائية
+// 1. الشاشة الرأسية (نقطة البداية)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// عرض شاشة الفيديوهات والرسائل (بعد الدخول)
+// 2. شاشة المحتوى الرئيسي (الفيديوهات والرسائل)
 app.get('/home', (req, res) => {
-    if (req.session.loggedIn) {
+    // التحقق من أن المستخدم قام بتسجيل الدخول فعلياً
+    if (req.session.isLoggedIn) {
         res.sendFile(path.join(__dirname, 'public', 'main.html'));
     } else {
-        res.redirect('/'); // إذا لم يسجل دخوله يعود للشاشة الرأسية
+        res.redirect('/'); // إذا حاول الدخول مباشرة دون تسجيل يتم طرده للشاشة الرأسية
     }
 });
 
-// --- 4. منطق إنشاء الحساب (البيانات + سؤال الأمان) ---
-app.post('/register', (req, res) => {
-    const { username, birthplace, nationality, age, residence, securityQuestion, securityAnswer, password } = req.body;
+// --- العمليات المنطقية (API Logic) ---
 
-    // التأكد من عدم تكرار اسم المستخدم
-    const userExists = users.find(u => u.username === username);
-    if (userExists) {
-        return res.status(400).json({ message: "اسم المستخدم موجود مسبقاً" });
+// 3. عملية إنشاء حساب جديد
+app.post('/register', (req, res) => {
+    const { 
+        username, birthplace, nationality, age, 
+        residence, securityQuestion, securityAnswer, password 
+    } = req.body;
+
+    // التحقق من تكرار الاسم
+    if (usersDB.find(u => u.username === username)) {
+        return res.status(400).json({ message: "اسم المستخدم هذا مسجل بالفعل!" });
     }
 
-    // حفظ المستخدم الجديد مع بيانات الأمان
+    // إضافة المستخدم الجديد مع بياناته وسؤال الأمان
     const newUser = {
         username,
-        details: { birthplace, nationality, age, residence },
+        profile: { birthplace, nationality, age, residence },
         security: { question: securityQuestion, answer: securityAnswer },
-        password: password // في المواقع الحقيقية نقوم بتشفيرها هنا
+        password: password
     };
 
-    users.push(newUser);
-    console.log("مستخدم جديد انضم للخط الأحمر:", username);
-    res.status(200).json({ message: "تم إنشاء الحساب بنجاح" });
+    usersDB.push(newUser);
+    console.log(`✅ حساب جديد تم إنشاؤه: ${username}`);
+    res.status(200).json({ message: "تم إنشاء الحساب بنجاح!" });
 });
 
-// --- 5. منطق تسجيل الدخول ---
+// 4. عملية تسجيل الدخول
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = usersDB.find(u => u.username === username && u.password === password);
 
     if (user) {
-        req.session.loggedIn = true;
-        req.session.username = username;
+        req.session.isLoggedIn = true; // حفظ حالة الدخول في الجلسة
+        req.session.user = user.username;
         res.json({ success: true, redirect: '/home' });
     } else {
-        res.status(401).json({ success: false, message: "بيانات الدخول خاطئة" });
+        res.status(401).json({ success: false, message: "بيانات الدخول غير صحيحة!" });
     }
 });
 
-// --- 6. منطق استعادة كلمة السر (سؤال الأمان) ---
+// 5. عملية استعادة كلمة السر (سؤال الأمان)
 app.post('/forgot-password', (req, res) => {
     const { username } = req.body;
-    const user = users.find(u => u.username === username);
+    const user = usersDB.find(u => u.username === username);
 
     if (user) {
-        // نرسل سؤال الأمان للمستخدم ليقوم بالإجابة عليه
         res.json({ question: user.security.question });
     } else {
-        res.status(404).json({ message: "المستخدم غير موجود" });
+        res.status(404).json({ message: "المستخدم غير موجود!" });
     }
 });
 
-app.post('/verify-security', (req, res) => {
+// 6. التحقق من الإجابة وتغيير كلمة السر
+app.post('/reset-password', (req, res) => {
     const { username, answer, newPassword } = req.body;
-    const user = users.find(u => u.username === username);
+    const user = usersDB.find(u => u.username === username);
 
     if (user && user.security.answer === answer) {
-        user.password = newPassword; // تغيير كلمة السر
-        res.json({ message: "تم تغيير كلمة السر بنجاح" });
+        user.password = newPassword;
+        res.json({ message: "تم تحديث كلمة السر بنجاح، يمكنك الدخول الآن." });
     } else {
-        res.status(400).json({ message: "الإجابة خاطئة" });
+        res.status(400).json({ message: "الإجابة على سؤال الأمان خاطئة!" });
     }
 });
 
-// تشغيل السيرفر على المنفذ الذي يحدده Render أو 3000 محلياً
+// 7. تسجيل الخروج
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+
+// --- تشغيل السيرفر ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`-----------------------------------`);
-    console.log(`RED LINE SERVER IS RUNNING ON PORT ${PORT}`);
-    console.log(`-----------------------------------`);
+    console.log(`🚀 Red Line Server is running on: http://localhost:${PORT}`);
 });
